@@ -10,6 +10,7 @@ class GpsAccessScreen extends StatelessWidget {
    @override
    Widget build(BuildContext context) {
    return Scaffold(
+
       body: Center(
          child: BlocBuilder<GpsBloc, GpsState>(
            builder: (context, state) {

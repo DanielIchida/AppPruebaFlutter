@@ -27,9 +27,12 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
   }
 
   Future<void> startFollowingUser() async {
-    final LocationSettings settings = LocationSettings(
+    final LocationSettings settings = AndroidSettings(
        accuracy: ConfigApp.ACCURACY_GPS,
-       timeLimit: const Duration(seconds: ConfigApp.TIME_LIMIT_SECOND_GPS)
+       intervalDuration: const Duration(seconds: ConfigApp.TIME_LIMIT_SECOND_GPS),
+       forceLocationManager: true,
+       foregroundNotificationConfig: const ForegroundNotificationConfig(
+           notificationTitle: "Run Gps", notificationText: "Running...",enableWakeLock: true)
     );
     positionStream = Geolocator.getPositionStream(locationSettings: settings).listen((event) {
       final position = event;

@@ -30,6 +30,10 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+         title: Text("Geocoding"),
+      ),
+      drawer: Drawer(),
       body: BlocBuilder<LocationBloc, LocationState>(
         builder: (context, locationState) {
 
@@ -50,6 +54,11 @@ class _MapScreenState extends State<MapScreen> {
           );
         },
       ),
+      bottomNavigationBar: BottomNavigationBar(items: [
+         BottomNavigationBarItem(label: "Speed",icon: Icon(Icons.speed)),
+         BottomNavigationBarItem(label: "Speed",icon: Icon(Icons.directions_run_rounded)),
+         BottomNavigationBarItem(label: "Speed",icon: Icon(Icons.start)),
+      ],),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,

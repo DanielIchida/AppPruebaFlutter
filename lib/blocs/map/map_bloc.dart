@@ -20,6 +20,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   BuildContext context;
   LocationBloc? locationBloc;
   GoogleMapController? _mapController;
+  Map<String, Marker>? currentMarkers;
 
   StreamSubscription<LocationState>? locationStateSubscription;
 
@@ -34,10 +35,14 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     on<DisplayMarkersEvents>((event, emit) => emit( state.copyWith(markers: event.markers) ));
     on<OnUpdateLocationEvent>(_updateCurrentLocation);
 
+    currentMarkers = Map<String, Marker>.from( state.markers );
+
     locationStateSubscription = locationBloc!.stream.listen(( locationState ) {
       if( locationState.lastKnownLocation == null ) return;
+        print("Current Location ${locationState.lastKnownLocation}");
         moveCamera( locationState.lastKnownLocation!);
         add(OnUpdateLocationEvent(locationState.lastKnownLocation!));
+
     });
 
   }
@@ -51,11 +56,17 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   }
 
   void _updateCurrentLocation(OnUpdateLocationEvent event,Emitter<MapState> emit) async{
-       final currentMarkers = Map<String, Marker>.from( state.markers );
-       await addMarkersPositions(event.currentLocation,currentMarkers);
-       await updateMarkerMyPosition(event.currentLocation,currentMarkers);
-       add(DisplayMarkersEvents(currentMarkers));
+       await addMarkersPositions(event.currentLocation,currentMarkers!);
+       await updateMarkerMyPosition(event.currentLocation,currentMarkers!);
+       add(DisplayMarkersEvents(currentMarkers!));
        emit(state.copyWith(markers: state.markers));
+       printMap();
+  }
+
+  void printMap(){
+      state.markers.forEach((key, value) {
+           print("$key -> ${value.position.latitude},${value.position.longitude}");
+      });
   }
 
   Future addMarkersPositions(LatLng newLocation,Map<String, Marker> listMarkers) async {
@@ -85,10 +96,9 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   Future _drawMarketsInit(RouteDestination routeDestination) async {
     final startMarker = drawMarker(routeDestination.destination,await getStartCustomMarker(),"start");
     final endMarker = drawMarker(routeDestination.end,await getEndCustomMarker(),"end");
-    final currentMarkers = Map<String, Marker>.from( state.markers );
-    currentMarkers['start'] = startMarker;
-    currentMarkers['end'] = endMarker;
-    add(DisplayMarkersEvents(currentMarkers));
+    currentMarkers!['start'] = startMarker;
+    currentMarkers!['end'] = endMarker;
+    add(DisplayMarkersEvents(currentMarkers!));
   }
 
   void moveCamera(LatLng? newLocation){
